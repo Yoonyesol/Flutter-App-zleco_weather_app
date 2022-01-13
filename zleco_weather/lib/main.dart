@@ -13,7 +13,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(FlutterConfig.get('kakao_api'));
     return MaterialApp(
       title: 'weatherWeather',
       home: Loading(),

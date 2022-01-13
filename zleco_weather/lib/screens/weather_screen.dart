@@ -7,19 +7,15 @@ import 'package:timer_builder/timer_builder.dart';
 import 'package:hiiidan_weather/model/model.dart';
 
 class WeatherScreen extends StatefulWidget {
-  WeatherScreen({this.parseTodayTMNData, this.parseTodayTMXData,
-    this.parseShortTermWeatherData, this.parseCurrentWeatherData,
-    this.parseSuperShortWeatherData, this.parseAirConditionData
-    //,
-    //this.parseDoroData
-  });
-  final dynamic parseTodayTMNData;
-  final dynamic parseTodayTMXData;
+  WeatherScreen({this.parse2amData,this.parseShortTermWeatherData, this.parseCurrentWeatherData,
+    this.parseSuperShortWeatherData, this.parseAirConditionData,
+    this.parseAddrData});
+  final dynamic parse2amData;
   final dynamic parseShortTermWeatherData;
   final dynamic parseCurrentWeatherData;
   final dynamic parseSuperShortWeatherData;
   final dynamic parseAirConditionData;
-  //final dynamic parseDoroData;
+  final dynamic parseAddrData;
 
   @override
   _WeatherScreenState createState() => _WeatherScreenState();
@@ -29,18 +25,20 @@ class _WeatherScreenState extends State<WeatherScreen> {
   Model model = Model();
   var date = DateTime.now();
 
-  var todayTMX;//일 최고기온
-  var todayTMN;//일 최저기온
+  var todayTMX2;//일 최고기온
+  var todayTMN2;//일 최저기온
   var parsed_json;
 
-  var currentT1H2;
+  int? todayTMX;
+  int? todayTMN;
+
   var currentT1H; //현재 기온
   String? currentREH; //현재 습도
   String? currentRN1; //1시간 강수량
 
-  var skyCode;
+  var skyCode; //하늘코드
   late Widget skyIcon;  //날씨 아이콘
-  late Widget skyDesc;
+  late Widget skyDesc; //날씨 설명
 
   var air10;  //미세먼지
   var air25; //초미세먼지
@@ -49,8 +47,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
   late Widget airIcon25; //미세먼지 아이콘
   late Widget airDesc25;
 
-  String? si;
-  String? addr;
+  String? si; //시
+  String? addr; //동
 
   String getSystemTime(){
     var now = DateTime.now();
@@ -59,38 +57,38 @@ class _WeatherScreenState extends State<WeatherScreen> {
 
   void initState(){
     super.initState();
-    updateData(widget.parseTodayTMNData, widget.parseTodayTMXData,
-        widget.parseShortTermWeatherData, widget.parseCurrentWeatherData,
-        widget.parseSuperShortWeatherData, widget.parseAirConditionData
-      //,
-       //widget.parseDoroData
+    updateData(widget.parse2amData, widget.parseShortTermWeatherData, widget.parseCurrentWeatherData,
+        widget.parseSuperShortWeatherData, widget.parseAirConditionData, widget.parseAddrData
     );
   }
 
-  void updateData(dynamic todayTMNData, dynamic todayTMXData,
-      dynamic shortTermWeatherData, dynamic currentWeatherData,
-      dynamic superShortWeatherData, dynamic airConditionData
-      //,
-      //dynamic doroData
-      ){
-    // print('tmndata: $todayTMN');
-    // print('tmxdata: $todayTMX');
-    // print('stwdata: $shortTermWeather');
-    // print('cwddata: $currentWeather');
+  void updateData(dynamic today2amData, dynamic shortTermWeatherData, dynamic currentWeatherData,
+      dynamic superShortWeatherData, dynamic airConditionData, dynamic addrData){
 
-    //당일 최저 기온
-    todayTMN = todayTMNData['response']['body']['items']['item'][48]['fcstValue'];
+    // print('addr: $addrData');
+    // print('1: $todayTMNData');
+    // print('2a: $todayTMXData');
+    // print('3: $shortTermWeatherData');
+    // print('4a: $currentWeatherData');
+    // print('5: $superShortWeatherData');
+    // print('6: $airConditionData');
 
     //데이터의 총 갯수
-    int totalCount = todayTMXData['response']['body']['totalCount'];
+    int totalCount = today2amData['response']['body']['totalCount'];
     for(int i = 0; i< totalCount; i++){//데이터 전체를 돌면서 원하는 데이터 추출
-      parsed_json = todayTMXData['response']['body']['items']['item'][i];
+      parsed_json = today2amData['response']['body']['items']['item'][i];
+      //당일 최저 기온
+      if(parsed_json['category']=='TMN' && parsed_json['baseDate']==parsed_json['fcstDate']){
+        todayTMN2 = parsed_json['fcstValue'];
+      }
       //당일 최고 기온
       if(parsed_json['category']=='TMX' && parsed_json['baseDate']==parsed_json['fcstDate']){
-        todayTMX = parsed_json['fcstValue'];
+        todayTMX2 = parsed_json['fcstValue'];
         break;
       }
     }
+    todayTMN = double.parse('$todayTMN2').round(); //반올림
+    todayTMX = double.parse('$todayTMX2').round();
 
     //현재 온도
     currentT1H = currentWeatherData['response']['body']['items']['item'][3]['obsrValue'];
@@ -99,9 +97,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
     //1시간 강수량
     currentRN1 = currentWeatherData['response']['body']['items']['item'][2]['obsrValue'];
 
-    //skyCode = superShortWeatherData['response']['body']['items']['item'][18]['fcstValue'];
-    int totalCount2 = superShortWeatherData['response']['body']['totalCount'];
-    for(int i = 0; i< totalCount2; i++){
+    totalCount = superShortWeatherData['response']['body']['totalCount'];
+    for(int i = 0; i< totalCount; i++){
       parsed_json = superShortWeatherData['response']['body']['items']['item'][i];
       //SKY 코드값
       if(parsed_json['category']=='SKY' && parsed_json['baseDate']==parsed_json['fcstDate']){
@@ -122,11 +119,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
     airIcon25 = model.getAirIcon25(air25)!;
     airDesc25 = model.getAirDesc25(air25)!;
 
-    // si = doroData['results'][1]['address_components'][2]['short_name'];
-    // addr = doroData['results'][1]['address_components'][1]['short_name'];
-    // print(si);
-    // print(addr);
-
+    si = addrData['documents'][0]['address']['region_2depth_name'];
+    addr = addrData['documents'][0]['address']['region_3depth_name'];
   }
 
   @override
@@ -169,38 +163,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Container(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    SizedBox(
-                                      height: 50.0,
-                                    ),
-                                    skyIcon,
-                                    skyDesc,
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    Text('습도(%) $currentREH',
-                                      style: TextStyle(
-                                          fontFamily: 'tmon',
-                                          fontSize: 10.0,
-                                          color: Colors.white
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: 5,
-                                    ),
-                                    Text('1시간강수량(mm) $currentRN1',
-                                      style: TextStyle(
-                                          fontFamily: 'tmon',
-                                          fontSize: 10.0,
-                                          color: Colors.white
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                              Container(
                                 child: Expanded(
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -235,7 +197,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                         height: 5,
                                       ),
                                       TimerBuilder.periodic(
-                                        (Duration(minutes: 1)), //1분 단위로 보여주기
+                                        (Duration(minutes: 1)), //1분 단위로 시간 업데이트
                                         builder: (context){
                                           return Text(
                                               '${getSystemTime()}',
@@ -248,32 +210,32 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                         },
                                       ),
                                       SizedBox(
-                                        height: 5,
+                                        height: 15,
                                       ),
-                                      Text('동패동, 파주',
+                                      Text('$addr',
                                         style: TextStyle(
                                             fontFamily: 'tmon',
                                             fontSize: 30.0,
                                             color: Colors.white
                                         ),
                                       ),
-                                      // SizedBox(
-                                      //   height: 10.0,
-                                      // ),
-                                      // Text('파주',
-                                      //   style: TextStyle(
-                                      //       fontFamily: 'tmon',
-                                      //       fontSize: 18.0,
-                                      //       color: Colors.white
-                                      //   ),
-                                      // ),
                                       SizedBox(
-                                        height: 10.0,
+                                        height: 5.0,
+                                      ),
+                                      Text('($si)',
+                                        style: TextStyle(
+                                            fontFamily: 'tmon',
+                                            fontSize: 20.0,
+                                            color: Colors.white
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        height: 15.0,
                                       ),
                                       Text('$currentT1H°C',
                                         style: TextStyle(
                                             fontFamily: 'tmon',
-                                            fontSize: 50.0,
+                                            fontSize: 45.0,
                                             color: Colors.white
                                         ),
                                       ),
@@ -291,6 +253,39 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                   ),
                                 ),
                               )
+                              ,
+                              Container(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      height: 80.0,
+                                    ),
+                                    skyIcon,
+                                    skyDesc,
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Text('습도(%) $currentREH',
+                                      style: TextStyle(
+                                          fontFamily: 'tmon',
+                                          fontSize: 10.0,
+                                          color: Colors.white
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 5,
+                                    ),
+                                    Text('1시간강수량(mm) $currentRN1',
+                                      style: TextStyle(
+                                          fontFamily: 'tmon',
+                                          fontSize: 10.0,
+                                          color: Colors.white
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
                             ]
                         ),
                         SizedBox(
@@ -443,7 +438,7 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                 color: Colors.white,
                               ),
                               padding: EdgeInsets.all(17.0),
-                              height: 370.0,
+                              height: 280.0,
                               width: 370.0,
                               child: Column(
                                 children:[
@@ -754,124 +749,6 @@ class _WeatherScreenState extends State<WeatherScreen> {
                                             ),
                                           ),
                                         ],
-                                      ),SizedBox(
-                                        height: 15,
-                                      ),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                        children: [
-                                          Text('요일',
-                                            style: TextStyle(
-                                                fontFamily: 'tmon',
-                                                fontSize: 15.0,
-                                                color: Colors.black87
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: 5,
-                                          ),
-                                          Text('습도',
-                                            style: TextStyle(
-                                                fontFamily: 'tmon',
-                                                fontSize: 15.0,
-                                                color: Colors.black87
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: 5,
-                                          ),
-                                          Row(
-                                            children: [
-                                              SvgPicture.asset(
-                                                'assets/weather_icon/fog.svg',
-                                                width: 25.0,
-                                                height: 25.0,
-                                              ),
-                                              Text('/',
-                                                style: TextStyle(
-                                                    fontFamily: 'tmon',
-                                                    fontSize: 10.0,
-                                                    color: Colors.black87
-                                                ),
-                                              ),
-                                              SvgPicture.asset(
-                                                'assets/weather_icon/clear-day.svg',
-                                                width: 25.0,
-                                                height: 25.0,
-                                              ),
-
-                                            ],
-                                          ),
-                                          SizedBox(
-                                            width: 5,
-                                          ),
-                                          Text('최저/최고온도',
-                                            style: TextStyle(
-                                                fontFamily: 'tmon',
-                                                fontSize: 15.0,
-                                                color: Colors.black87
-                                            ),
-                                          ),
-                                        ],
-                                      ),SizedBox(
-                                        height: 15,
-                                      ),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                        children: [
-                                          Text('요일',
-                                            style: TextStyle(
-                                                fontFamily: 'tmon',
-                                                fontSize: 15.0,
-                                                color: Colors.black87
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: 5,
-                                          ),
-                                          Text('습도',
-                                            style: TextStyle(
-                                                fontFamily: 'tmon',
-                                                fontSize: 15.0,
-                                                color: Colors.black87
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            width: 5,
-                                          ),
-                                          Row(
-                                            children: [
-                                              SvgPicture.asset(
-                                                'assets/weather_icon/fog.svg',
-                                                width: 25.0,
-                                                height: 25.0,
-                                              ),
-                                              Text('/',
-                                                style: TextStyle(
-                                                    fontFamily: 'tmon',
-                                                    fontSize: 10.0,
-                                                    color: Colors.black87
-                                                ),
-                                              ),
-                                              SvgPicture.asset(
-                                                'assets/weather_icon/clear-day.svg',
-                                                width: 25.0,
-                                                height: 25.0,
-                                              ),
-
-                                            ],
-                                          ),
-                                          SizedBox(
-                                            width: 5,
-                                          ),
-                                          Text('최저/최고온도',
-                                            style: TextStyle(
-                                                fontFamily: 'tmon',
-                                                fontSize: 15.0,
-                                                color: Colors.black87
-                                            ),
-                                          ),
-                                        ],
                                       ),
                                     ],
                                   )
@@ -882,6 +759,9 @@ class _WeatherScreenState extends State<WeatherScreen> {
                         ),
                         SizedBox(
                           height: 5,
+                        ),
+                        Column(
+
                         ),
                         Container(
                             child:

@@ -3,34 +3,21 @@ import 'dart:convert';
 import 'dart:io';
 
 class Network {
-  final String todayTMNUrl; //최저 기온
-  final String todayTMXUrl; //최고 기온
+  final String today2amUrl; //최저, 최고 기온
   final String shortTermWeatherUrl;  //단기예보
   final String currentWeatherUrl; //초단기 실황
   final String superShortWeatherUrl; //초단기 예보
   final String airConditionUrl; //대기오염 정보
 
-  Network(this.todayTMNUrl, this.todayTMXUrl,
-      this.shortTermWeatherUrl, this.currentWeatherUrl,
+  Network(this.today2amUrl, this.shortTermWeatherUrl, this.currentWeatherUrl,
       this.superShortWeatherUrl, this.airConditionUrl);
 
-  //최저기온 json
-  Future<dynamic> getTodayTMNData() async {
-    http.Response response = await http.get(Uri.parse(todayTMNUrl));
+  //최저, 최고기온 json
+  Future<dynamic> getToday2amData() async {
+    http.Response response = await http.get(Uri.parse(today2amUrl));
     if(response.statusCode == 200) {
       String jsonData = response.body;
       var parsingData = jsonDecode(jsonData); //json형식 문자열을 배열 또는 객체로 변환하는 함수
-      return parsingData;
-    }
-  }
-
-  //최고기온 json
-  Future<dynamic> getTodayTMXData() async {
-    sleep(const Duration(milliseconds:500));
-    http.Response response = await http.get(Uri.parse(todayTMXUrl));
-    if(response.statusCode == 200) {
-      String jsonData = response.body;
-      var parsingData = jsonDecode(jsonData);
       return parsingData;
     }
   }
@@ -68,7 +55,7 @@ class Network {
     }
   }
 
-  //미세먼지 json
+  //에어코리아 json
   Future<dynamic> getAirConditionData() async {
     sleep(const Duration(milliseconds:500));
     http.Response response = await http.get(Uri.parse(airConditionUrl));

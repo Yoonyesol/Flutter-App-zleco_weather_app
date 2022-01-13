@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -9,13 +10,10 @@ import 'package:hiiidan_weather/screens/weather_screen.dart';
 import 'package:intl/intl.dart';
 import 'weather_screen.dart';
 import 'package:hiiidan_weather/data/my_location.dart';
-import 'package:hiiidan_weather/data/geo_network.dart';
 import 'package:http/http.dart' as http;
 
 final String apiKey = FlutterConfig.get('apiKey');
-final String googleApiKey = FlutterConfig.get('google_map_api');
 final String kakaoApiKey = FlutterConfig.get('kakao_api');
-
 
 class Loading extends StatefulWidget {
   const Loading({Key? key}) : super(key: key);
@@ -25,11 +23,14 @@ class Loading extends StatefulWidget {
 }
 
 class _LoadingState extends State<Loading> {
-  String? baseDate;
   String? baseTime;
-  String? tmxBaseTime;
-  String? currentBaseTime;
-  String? shortBaseTime;
+  String? baseDate;
+  String? baseDate_2am;
+  String? baseTime_2am;
+  String? currentBaseTime; //초단기 실황
+  String? currentBaseDate;
+  String? sswBaseTime; //초단기 예보
+  String? sswBaseDate;
 
   int? xCoordinate;
   int? yCoordinate;
@@ -66,93 +67,81 @@ class _LoadingState extends State<Loading> {
     print(xCoordinate);
     print(yCoordinate);
 
+    //카카오맵 역지오코딩
     var url = Uri.parse('https://dapi.kakao.com/v2/local/geo/coord2address.json?x=$userLongi&y=$userLati&input_coord=WGS84');
-    var response = await http.get(url, headers: {"Authorization": "KakaoAK $kakaoApiKey"});
+    var kakaoGeo = await http.get(url, headers: {"Authorization": "KakaoAK $kakaoApiKey"});
+    //jason data
+    String addr = kakaoGeo.body;
 
-    print(response.body);
+    if(now.hour < 2){
+      baseDate_2am = getYesterdayDate();
+      baseTime_2am = "2300";
+    } else {
+      baseDate_2am = getSystemTime();
+      baseTime_2am = "0200";
+    }
 
-    var url2 = Uri.parse('https://dapi.kakao.com/v2/local/geo/coord2address.json?x=$userLongi&y=$userLati&input_coord=WGS84');
-    var response2 = await http.get(url, headers: {"Authorization": "KakaoAK $kakaoApiKey"});
-
-    // String geoAPI ='https://maps.googleapis.com/maps/api/geocode/json?latlng=$userLati,$userLongi&key=$googleApiKey&language=ko';
-    //
-    // GeoNetwork geoNetwork = GeoNetwork(geoAPI);
-    // //jason data
-    // var doroData = await geoNetwork.getDoro();
-    // var si = doroData['results'][1]['address_components'][2]['short_name'];
-    // var addr = doroData['results'][1]['address_components'][1]['short_name'];
-    // print(si);
-    // print(addr);
-
-    // String observ = 'http://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getMsrstnList?addr=서울&stationName=종로구&'
-    //     'pageNo=1&numOfRows=10&serviceKey=$apiKey&returnType=json';
-    // GeoNetwork geoNetwork = GeoNetwork(geoAPI)
-
-
-    await shortWeatherDate();  //단기 예보 시간별 baseTime, baseDate
+    //단기 예보 시간별 baseTime, baseDate
     //오늘 최저 기온
-    String todayTMN = 'http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?'
-        'serviceKey=$apiKey&numOfRows=50&pageNo=1&'
-        'base_date=${getSystemTime()}&base_time=0200&nx=$xCoordinate&ny=$yCoordinate&dataType=JSON';
+    String today2am = 'http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?'
+        'serviceKey=$apiKey&numOfRows=900&pageNo=1&'
+        'base_date=$baseDate_2am&base_time=$baseTime_2am&nx=$xCoordinate&ny=$yCoordinate&dataType=JSON';
 
-    //오늘 최고 기온
-    String todayTMX = 'http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?'
-        'serviceKey=$apiKey&numOfRows=1000&pageNo=1&'
-        'base_date=${getSystemTime()}&base_time=$tmxBaseTime&nx=$xCoordinate&ny=$yCoordinate&dataType=JSON';
-
-    //단기 예보 데이터 api 링크
+    shortWeatherDate();
+    //단기 예보 데이터
     String shortTermWeather = 'http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?'
         'serviceKey=$apiKey&numOfRows=1000&pageNo=1&'
-        'base_date=${getSystemTime()}&base_time=$baseTime&nx=$xCoordinate&ny=$yCoordinate&dataType=JSON';
+        'base_date=$baseDate&base_time=$baseTime&nx=$xCoordinate&ny=$yCoordinate&dataType=JSON';
 
-    await currentWeatherDate(); //초단기 실황 baseTime
-    print(currentBaseTime);
-    //현재 날씨 API 링크
+    currentWeatherDate();
+    //현재 날씨(초단기 실황)
     String currentWeather = 'http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtNcst?'
         'serviceKey=$apiKey&numOfRows=10&pageNo=1&'
-        'base_date=${getSystemTime()}&base_time=$currentBaseTime&nx=$xCoordinate&ny=$yCoordinate&dataType=JSON';
+        'base_date=$currentBaseDate&base_time=$currentBaseTime&nx=$xCoordinate&ny=$yCoordinate&dataType=JSON';
 
-    await superShortWeatherDate(); //초단기 예보 baseTime
-    print(shortBaseTime);
+    superShortWeatherDate();
+    //초단기 예보
     String superShortWeather = 'http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getUltraSrtFcst'
         '?serviceKey=$apiKey&numOfRows=60&pageNo=1'
-        '&base_date=${getSystemTime()}&base_time=$shortBaseTime&nx=$xCoordinate&ny=$yCoordinate&dataType=JSON';
+        '&base_date=$sswBaseDate&base_time=$sswBaseTime&nx=$xCoordinate&ny=$yCoordinate&dataType=JSON';
 
-
+    // print(baseDate);
+    // print(baseTime);
+    // print(currentBaseTime); //초단기 실황
+    // print(currentBaseDate);
+    // print(sswBaseTime); //초단기 예보
+    // print(sswBaseDate);
 
     String airConditon = 'http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty?'
         'stationName=운정&dataTerm=DAILY&pageNo=1&ver=1.0'
         '&numOfRows=1&returnType=json&serviceKey=$apiKey';
 
-    Network network = Network(todayTMN, todayTMX,
+    Network network = Network(today2am,
         shortTermWeather, currentWeather,
         superShortWeather, airConditon);
 
     // json 데이터
-    var todayTMNData = await network.getTodayTMNData();
-    var todayTMXData = await network.getTodayTMXData();
+    var today2amData = await network.getToday2amData();
     var shortTermWeatherData = await network.getShortTermWeatherData();
     var currentWeatherData = await network.getCurrentWeatherData();
     var superShortWeatherData = await network.getSuperShortWeatherData();
     var airConditionData = await network.getAirConditionData();
+    var addrData = jsonDecode(addr);
 
-    print('1: $todayTMNData');
-    print('2a: $todayTMXData');
-    print('3: $shortTermWeatherData');
-    print('4a: $currentWeatherData');
-    print('5: $superShortWeatherData');
-    print('6: $airConditionData');
+    print('2am: $today2amData');
+    print('shortTermWeather: $shortTermWeatherData');
+    print('currentWeather: $currentWeatherData');
+    print('superShortWeather: $superShortWeatherData');
+    print('air: $airConditionData');
 
     Navigator.push(context, MaterialPageRoute(builder: (context){
       return WeatherScreen(
-        parseTodayTMNData: todayTMNData,
-        parseTodayTMXData: todayTMXData,
+        parse2amData: today2amData,
         parseShortTermWeatherData: shortTermWeatherData,
         parseCurrentWeatherData: currentWeatherData,
         parseSuperShortWeatherData: superShortWeatherData,
-        parseAirConditionData: airConditionData
-          //,
-        //parseDoroData: doroData
+        parseAirConditionData: airConditionData,
+        parseAddrData: addrData
       );
     }));
   }
@@ -162,200 +151,107 @@ class _LoadingState extends State<Loading> {
     return Scaffold(
       backgroundColor: Colors.lightBlueAccent,
       body: Center(
-        child: SpinKitWave(
-          color: Colors.white,
-          size: 60.0,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SpinKitWave(
+              color: Colors.white,
+              size: 60.0,
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            Text('위치 정보 업데이트 중',
+              style: TextStyle(
+                  fontFamily: 'tmon',
+                  fontSize: 20.0,
+                  color: Colors.black87
+              ),
+            )
+          ],
         ),
       ),
     );
   }
 
-  Future shortWeatherDate() async{
+  void shortWeatherDate(){
     if(now.hour < 2 || (now.hour == 2 && now.minute <= 10)){ //0시~2시 10분 사이 예보
       baseDate = getYesterdayDate();   //어제 날짜
       baseTime = "2300";
-      tmxBaseTime = "1100";
+      baseTime_2am = "1100";
     } else if (now.hour < 5 || (now.hour == 5 && now.minute <= 10)){ //2시 11분 ~ 5시 10분 사이 예보
       baseDate = getSystemTime();
       baseTime = "0200";
-      tmxBaseTime = "0200";
+      baseTime_2am = "0200";
     } else if (now.hour < 8 || (now.hour == 8 && now.minute <= 10)){ //5시 11분 ~ 8시 10분 사이 예보
       baseDate = getSystemTime();
       baseTime = "0500";
-      tmxBaseTime = "0500";
+      baseTime_2am = "0500";
     } else if (now.hour < 11 || (now.hour == 11 && now.minute <= 10)){ //8시 11분 ~ 11시 10분 사이 예보
       baseDate = getSystemTime();
       baseTime = "0800";
-      tmxBaseTime = "0800";
+      baseTime_2am = "0800";
     } else if (now.hour < 14 || (now.hour == 14 && now.minute <= 10)){ //11시 11분 ~ 14시 10분 사이 예보
       baseDate = getSystemTime();
       baseTime = "1100";
-      tmxBaseTime = "1100";
+      baseTime_2am = "1100";
     } else if (now.hour < 17 || (now.hour == 17 && now.minute <= 10)){ //14시 11분 ~ 17시 10분 사이 예보
       baseDate = getSystemTime();
       baseTime = "1400";
-      tmxBaseTime = "1100";
+      baseTime_2am = "1100";
     } else if (now.hour < 20 || (now.hour == 20 && now.minute <= 10)){ //17시 11분 ~ 20시 10분 사이 예보
       baseDate = getSystemTime();
       baseTime = "1700";
-      tmxBaseTime = "1100";
+      baseTime_2am = "1100";
     } else if (now.hour < 23 || (now.hour == 23 && now.minute <= 10)){ //20시 11분 ~ 23시 10분 사이 예보
       baseDate = getSystemTime();
       baseTime = "2000";
-      tmxBaseTime = "1100";
+      baseTime_2am = "1100";
+    } else if (now.hour == 23 && now.minute >= 10){ //23시 11분 ~ 24시 사이 예보
+      baseDate = getSystemTime();
+      baseTime = "2300";
+      baseTime_2am = "1100";
     }
   }
 
-  Future currentWeatherDate() async{
-    if ((now.hour == 1 && now.minute <= 41) || (now.hour == 2 && now.minute <= 40)){ //1시 41분 ~ 2시 40분 예보
-      baseDate = getSystemTime();
-      currentBaseTime = "0100";
-    } else if ((now.hour == 2 && now.minute <= 41) || (now.hour == 3 && now.minute <= 40)){ //2시 41분 ~ 3시 40분 예보
-      baseDate = getSystemTime();
-      currentBaseTime = "0200";
-    } else if ((now.hour == 3 && now.minute <= 41) || (now.hour == 4 && now.minute <= 40)){
-      baseDate = getSystemTime();
-      currentBaseTime = "0300";
-    } else if ((now.hour == 4 && now.minute <= 41) || (now.hour == 5 && now.minute <= 40)){
-      baseDate = getSystemTime();
-      currentBaseTime = "0400";
-    } else if ((now.hour == 5 && now.minute <= 41) || (now.hour == 6 && now.minute <= 40)){
-      baseDate = getSystemTime();
-      currentBaseTime = "0500";
-    } else if ((now.hour == 6 && now.minute <= 41) || (now.hour == 7 && now.minute <= 40)){
-      baseDate = getSystemTime();
-      currentBaseTime = "0600";
-    } else if ((now.hour == 7 && now.minute <= 41) || (now.hour == 8 && now.minute <= 40)){
-      baseDate = getSystemTime();
-      currentBaseTime = "0700";
-    } else if ((now.hour == 8 && now.minute <= 41) || (now.hour == 9 && now.minute <= 40)){
-      baseDate = getSystemTime();
-      currentBaseTime = "0800";
-    } else if ((now.hour == 9 && now.minute <= 41) || (now.hour == 10 && now.minute <= 40)){
-      baseDate = getSystemTime();
-      currentBaseTime = "0900";
-    } else if ((now.hour == 10 && now.minute <= 41) || (now.hour == 11 && now.minute <= 40)){
-      baseDate = getSystemTime();
-      currentBaseTime = "1000";
-    } else if ((now.hour == 11 && now.minute <= 41) || (now.hour == 12 && now.minute <= 40)){
-      baseDate = getSystemTime();
-      currentBaseTime = "1100";
-    } else if ((now.hour == 12 && now.minute <= 41) || (now.hour == 13 && now.minute <= 40)){
-      baseDate = getSystemTime();
-      currentBaseTime = "1200";
-    } else if ((now.hour == 13 && now.minute <= 41) || (now.hour == 14 && now.minute <= 40)){
-      baseDate = getSystemTime();
-      currentBaseTime = "1300";
-    } else if ((now.hour == 14 && now.minute <= 41) || (now.hour == 15 && now.minute <= 40)){
-      baseDate = getSystemTime();
-      currentBaseTime = "1400";
-    } else if ((now.hour == 15 && now.minute <= 41) || (now.hour == 16 && now.minute <= 40)){
-      baseDate = getSystemTime();
-      currentBaseTime = "1500";
-    } else if ((now.hour == 16 && now.minute <= 41) || (now.hour == 17 && now.minute <= 40)){
-      baseDate = getSystemTime();
-      currentBaseTime = "1600";
-    } else if ((now.hour == 17 && now.minute <= 41) || (now.hour == 18 && now.minute <= 40)){
-      baseDate = getSystemTime();
-      currentBaseTime = "1700";
-    } else if ((now.hour == 18 && now.minute <= 41) || (now.hour == 19 && now.minute <= 40)){
-      baseDate = getSystemTime();
-      currentBaseTime = "1800";
-    } else if ((now.hour == 19 && now.minute <= 41) || (now.hour == 20 && now.minute <= 40)){
-      baseDate = getSystemTime();
-      currentBaseTime = "1900";
-    } else if ((now.hour == 20 && now.minute <= 41) || (now.hour == 21 && now.minute <= 40)){
-      baseDate = getSystemTime();
-      currentBaseTime = "2000";
-    } else if ((now.hour == 21 && now.minute <= 41) || (now.hour == 22 && now.minute <= 40)){
-      baseDate = getSystemTime();
-      currentBaseTime = "2100";
-    } else if ((now.hour == 22 && now.minute <= 41) || (now.hour == 23 && now.minute <= 40)){
-      baseDate = getSystemTime();
-      currentBaseTime = "2200";
-    } else if ((now.hour == 23 && now.minute <= 41) || (now.hour == 0 && now.minute <= 40)){
-      baseDate = getSystemTime();
-      currentBaseTime = "2300";
-    } else if ((now.hour == 0 && now.minute <= 41) || (now.hour == 1 && now.minute <= 40)) {
-      baseDate = getSystemTime();
-      currentBaseTime = "0000";
+  //초단기 실황
+  void currentWeatherDate() {
+    //40분 이전이면 현재 시보다 1시간 전 `base_time`을 요청한다.
+    if (now.minute <= 40){
+      // 단. 00:40분 이전이라면 `base_date`는 전날이고 `base_time`은 2300이다.
+      if (now.hour == 0) {
+        currentBaseDate = DateFormat('yyyyMMdd').format(now.subtract(Duration(days:1)));
+        currentBaseTime = '2300';
+      } else {
+        currentBaseDate = DateFormat('yyyyMMdd').format(now);
+        currentBaseTime = DateFormat('HH00').format(now.subtract(Duration(hours:1)));
+      }
+    }
+    //40분 이후면 현재 시와 같은 `base_time`을 요청한다.
+    else{
+      currentBaseDate = DateFormat('yyyyMMdd').format(now);
+      currentBaseTime = DateFormat('HH00').format(now);
     }
   }
 
-  Future superShortWeatherDate() async{
-    if ((now.hour == 1 && now.minute <= 46) || (now.hour == 2 && now.minute <= 45)){ //1시 41분 ~ 2시 40분 예보
-      baseDate = getSystemTime();
-      shortBaseTime = "0130";
-    } else if ((now.hour == 2 && now.minute <= 46) || (now.hour == 3 && now.minute <= 45)){ //2시 ~ 3시 40분 예보
-      baseDate = getSystemTime();
-      shortBaseTime = "0230";
-    } else if ((now.hour == 3 && now.minute <= 46) || (now.hour == 4 && now.minute <= 45)){
-      baseDate = getSystemTime();
-      shortBaseTime = "0330";
-    } else if ((now.hour == 4 && now.minute <= 46) || (now.hour == 5 && now.minute <= 45)){
-      baseDate = getSystemTime();
-      shortBaseTime = "0430";
-    } else if ((now.hour == 5 && now.minute <= 46) || (now.hour == 6 && now.minute <= 45)){
-      baseDate = getSystemTime();
-      shortBaseTime = "0530";
-    } else if ((now.hour == 6 && now.minute <= 46) || (now.hour == 7 && now.minute <= 45)){
-      baseDate = getSystemTime();
-      shortBaseTime = "0630";
-    } else if ((now.hour == 7 && now.minute <= 46) || (now.hour == 8 && now.minute <= 45)){
-      baseDate = getSystemTime();
-      shortBaseTime = "0730";
-    } else if ((now.hour == 8 && now.minute <= 46) || (now.hour == 9 && now.minute <= 45)){
-      baseDate = getSystemTime();
-      shortBaseTime = "0830";
-    } else if ((now.hour == 9 && now.minute <= 46) || (now.hour == 10 && now.minute <= 45)){
-      baseDate = getSystemTime();
-      shortBaseTime = "0930";
-    } else if ((now.hour == 10 && now.minute <= 46) || (now.hour == 11 && now.minute <= 45)){
-      baseDate = getSystemTime();
-      shortBaseTime = "1030";
-    } else if ((now.hour == 11 && now.minute <= 46) || (now.hour == 12 && now.minute <= 45)){
-      baseDate = getSystemTime();
-      shortBaseTime = "1130";
-    } else if ((now.hour == 12 && now.minute <= 46) || (now.hour == 13 && now.minute <= 45)){
-      baseDate = getSystemTime();
-      shortBaseTime = "1230";
-    } else if ((now.hour == 13 && now.minute <= 46) || (now.hour == 14 && now.minute <= 45)){
-      baseDate = getSystemTime();
-      shortBaseTime = "1330";
-    } else if ((now.hour == 14 && now.minute <= 46) || (now.hour == 15 && now.minute <= 45)){
-      baseDate = getSystemTime();
-      shortBaseTime = "1430";
-    } else if ((now.hour == 15 && now.minute <= 46) || (now.hour == 16 && now.minute <= 45)){
-      baseDate = getSystemTime();
-      shortBaseTime = "1530";
-    } else if ((now.hour == 16 && now.minute <= 46) || (now.hour == 17 && now.minute <= 45)){
-      baseDate = getSystemTime();
-      shortBaseTime = "1630";
-    } else if ((now.hour == 17 && now.minute <= 46) || (now.hour == 18 && now.minute <= 45)){
-      baseDate = getSystemTime();
-      shortBaseTime = "1730";
-    } else if ((now.hour == 18 && now.minute <= 46) || (now.hour == 19 && now.minute <= 45)){
-      baseDate = getSystemTime();
-      shortBaseTime = "1830";
-    } else if ((now.hour == 19 && now.minute <= 46) || (now.hour == 20 && now.minute <= 45)){
-      baseDate = getSystemTime();
-      shortBaseTime = "1930";
-    } else if ((now.hour == 20 && now.minute <= 46) || (now.hour == 21 && now.minute <= 45)){
-      baseDate = getSystemTime();
-      shortBaseTime = "2030";
-    } else if ((now.hour == 21 && now.minute <= 46) || (now.hour == 22 && now.minute <= 45)){
-      baseDate = getSystemTime();
-      shortBaseTime = "2130";
-    } else if ((now.hour == 22 && now.minute <= 46) || (now.hour == 23 && now.minute <= 45)){
-      baseDate = getSystemTime();
-      shortBaseTime = "2230";
-    } else if ((now.hour == 23 && now.minute <= 46) || (now.hour == 0 && now.minute <= 45)){
-      baseDate = getSystemTime();
-      shortBaseTime = "2330";
-    } else if ((now.hour == 0 && now.minute <= 46) || (now.hour == 1 && now.minute <= 45)) {
-      baseDate = getSystemTime();
-      shortBaseTime = "0030";
+  //초단기 예보
+  void superShortWeatherDate(){
+    //45분 이전이면 현재 시보다 1시간 전 `base_time`을 요청한다.
+    if (now.minute <= 45){
+      // 단. 00:45분 이전이라면 `base_date`는 전날이고 `base_time`은 2330이다.
+      if (now.hour == 0) {
+        sswBaseDate = DateFormat('yyyyMMdd').format(now.subtract(Duration(days:1)));
+        sswBaseTime = '2330';
+      } else {
+        sswBaseDate = DateFormat('yyyyMMdd').format(now);
+        sswBaseTime = DateFormat('HH30').format(now.subtract(Duration(hours:1)));
+      }
     }
-  }
+    //45분 이후면 현재 시와 같은 `base_time`을 요청한다.
+    else{ //if (now.minute > 45)
+      sswBaseDate = DateFormat('yyyyMMdd').format(now);
+      sswBaseTime = DateFormat('HH30').format(now);
+    }
+   }
 }
 
