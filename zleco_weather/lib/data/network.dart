@@ -18,50 +18,51 @@ class Network {
     if(response.statusCode == 200) {
       String jsonData = response.body;
       var parsingData = jsonDecode(jsonData); //json형식 문자열을 배열 또는 객체로 변환하는 함수
+      print(parsingData);
       return parsingData;
     }
   }
 
   //단기예보 json
   Future<dynamic> getShortTermWeatherData() async {
-    sleep(const Duration(milliseconds:500));
     http.Response response = await http.get(Uri.parse(shortTermWeatherUrl));
     if(response.statusCode == 200) {
       String jsonData = response.body;
       var parsingData = jsonDecode(jsonData);
+      print(parsingData);
       return parsingData;
     }
   }
 
   //초단기 실황 json
   Future<dynamic> getCurrentWeatherData() async {
-    sleep(const Duration(milliseconds:500));
     http.Response response = await http.get(Uri.parse(currentWeatherUrl));
     if(response.statusCode == 200) {
       String jsonData = response.body;
       var parsingData = jsonDecode(jsonData);
+      print(parsingData);
       return parsingData;
     }
   }
 
   //초단기 예보 json
   Future<dynamic> getSuperShortWeatherData() async {
-    sleep(const Duration(milliseconds:500));
     http.Response response = await http.get(Uri.parse(superShortWeatherUrl));
     if(response.statusCode == 200) {
       String jsonData = response.body;
       var parsingData = jsonDecode(jsonData);
+      print(parsingData);
       return parsingData;
     }
   }
 
   //에어코리아 json
   Future<dynamic> getAirConditionData() async {
-    sleep(const Duration(milliseconds:500));
     http.Response response = await http.get(Uri.parse(airConditionUrl));
     if(response.statusCode == 200) {
       String jsonData = response.body;
       var parsingData = jsonDecode(jsonData);
+      print(parsingData);
       return parsingData;
     }
   }

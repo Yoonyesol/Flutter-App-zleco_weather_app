@@ -64,27 +64,53 @@ class _LoadingState extends State<Loading> {
     userLati = userLocation.lati;
     userLongi = userLocation.longi;
 
+    var tm_x;
+    var tm_y;
+
+    var obsJson;
+    var obs;
+
     print(xCoordinate);
     print(yCoordinate);
 
     //카카오맵 역지오코딩
-    var url = Uri.parse('https://dapi.kakao.com/v2/local/geo/coord2address.json?x=$userLongi&y=$userLati&input_coord=WGS84');
-    var kakaoGeo = await http.get(url, headers: {"Authorization": "KakaoAK $kakaoApiKey"});
+    var kakaoGeoUrl = Uri.parse('https://dapi.kakao.com/v2/local/geo/coord2address.json?x=$userLongi&y=$userLati&input_coord=WGS84');
+    var kakaoGeo = await http.get(kakaoGeoUrl, headers: {"Authorization": "KakaoAK $kakaoApiKey"});
     //jason data
     String addr = kakaoGeo.body;
 
-    if(now.hour < 2){
+
+    //카카오맵 좌표계 변환
+    var kakaoXYUrl = Uri.parse('https://dapi.kakao.com/v2/local/geo/transcoord.json?'
+        'x=$userLongi&y=$userLati&input_coord=WGS84&output_coord=TM');
+    var kakaoTM = await http.get(kakaoXYUrl, headers: {"Authorization": "KakaoAK $kakaoApiKey"});
+    var TM = jsonDecode(kakaoTM.body);
+    tm_x = TM['documents'][0]['x'];
+    tm_y = TM['documents'][0]['y'];
+
+    //근접 측정소
+    var closeObs = 'http://apis.data.go.kr/B552584/MsrstnInfoInqireSvc/getNearbyMsrstnList?'
+        'tmX=$tm_x&tmY=$tm_y&returnType=json&serviceKey=$apiKey';
+    http.Response responseObs = await http.get(Uri.parse(closeObs));
+    if(responseObs.statusCode == 200) {
+      obsJson = jsonDecode(responseObs.body);
+    }
+    obs = obsJson['response']['body']['items'][0]['stationName'];
+    print('측정소: $obs');
+
+    if(now.hour < 2 || now.hour == 2 && now.minute < 10){
       baseDate_2am = getYesterdayDate();
       baseTime_2am = "2300";
     } else {
       baseDate_2am = getSystemTime();
       baseTime_2am = "0200";
     }
-
+    // print(baseDate_2am);
+    // print(baseTime_2am);
     //단기 예보 시간별 baseTime, baseDate
     //오늘 최저 기온
     String today2am = 'http://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/getVilageFcst?'
-        'serviceKey=$apiKey&numOfRows=900&pageNo=1&'
+        'serviceKey=$apiKey&numOfRows=1000&pageNo=1&'
         'base_date=$baseDate_2am&base_time=$baseTime_2am&nx=$xCoordinate&ny=$yCoordinate&dataType=JSON';
 
     shortWeatherDate();
@@ -113,7 +139,7 @@ class _LoadingState extends State<Loading> {
     // print(sswBaseDate);
 
     String airConditon = 'http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty?'
-        'stationName=운정&dataTerm=DAILY&pageNo=1&ver=1.0'
+        'stationName=$obs&dataTerm=DAILY&pageNo=1&ver=1.0'
         '&numOfRows=1&returnType=json&serviceKey=$apiKey';
 
     Network network = Network(today2am,
@@ -128,11 +154,11 @@ class _LoadingState extends State<Loading> {
     var airConditionData = await network.getAirConditionData();
     var addrData = jsonDecode(addr);
 
-    print('2am: $today2amData');
-    print('shortTermWeather: $shortTermWeatherData');
-    print('currentWeather: $currentWeatherData');
-    print('superShortWeather: $superShortWeatherData');
-    print('air: $airConditionData');
+    // print('2am: $today2amData');
+    // print('shortTermWeather: $shortTermWeatherData');
+    // print('currentWeather: $currentWeatherData');
+    // print('superShortWeather: $superShortWeatherData');
+    // print('air: $airConditionData');
 
     Navigator.push(context, MaterialPageRoute(builder: (context){
       return WeatherScreen(
@@ -178,39 +204,30 @@ class _LoadingState extends State<Loading> {
     if(now.hour < 2 || (now.hour == 2 && now.minute <= 10)){ //0시~2시 10분 사이 예보
       baseDate = getYesterdayDate();   //어제 날짜
       baseTime = "2300";
-      baseTime_2am = "1100";
     } else if (now.hour < 5 || (now.hour == 5 && now.minute <= 10)){ //2시 11분 ~ 5시 10분 사이 예보
       baseDate = getSystemTime();
       baseTime = "0200";
-      baseTime_2am = "0200";
     } else if (now.hour < 8 || (now.hour == 8 && now.minute <= 10)){ //5시 11분 ~ 8시 10분 사이 예보
       baseDate = getSystemTime();
       baseTime = "0500";
-      baseTime_2am = "0500";
     } else if (now.hour < 11 || (now.hour == 11 && now.minute <= 10)){ //8시 11분 ~ 11시 10분 사이 예보
       baseDate = getSystemTime();
       baseTime = "0800";
-      baseTime_2am = "0800";
     } else if (now.hour < 14 || (now.hour == 14 && now.minute <= 10)){ //11시 11분 ~ 14시 10분 사이 예보
       baseDate = getSystemTime();
       baseTime = "1100";
-      baseTime_2am = "1100";
     } else if (now.hour < 17 || (now.hour == 17 && now.minute <= 10)){ //14시 11분 ~ 17시 10분 사이 예보
       baseDate = getSystemTime();
       baseTime = "1400";
-      baseTime_2am = "1100";
     } else if (now.hour < 20 || (now.hour == 20 && now.minute <= 10)){ //17시 11분 ~ 20시 10분 사이 예보
       baseDate = getSystemTime();
       baseTime = "1700";
-      baseTime_2am = "1100";
     } else if (now.hour < 23 || (now.hour == 23 && now.minute <= 10)){ //20시 11분 ~ 23시 10분 사이 예보
       baseDate = getSystemTime();
       baseTime = "2000";
-      baseTime_2am = "1100";
     } else if (now.hour == 23 && now.minute >= 10){ //23시 11분 ~ 24시 사이 예보
       baseDate = getSystemTime();
       baseTime = "2300";
-      baseTime_2am = "1100";
     }
   }
 
