@@ -21,9 +21,10 @@ String airConditon = 'http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsr
         'stationName=$obs&dataTerm=DAILY&pageNo=1&ver=1.0'
         '&numOfRows=1&returnType=json&serviceKey=$apiKey';
 ```
-
-<img src = "https://user-images.githubusercontent.com/51500821/149667490-ec413805-968f-4b8b-85d0-5f5ca76efe4c.png" width="30%" height="30%">
-<img src = "https://user-images.githubusercontent.com/51500821/149667492-a1174e0b-8667-4d3c-8baf-6be1d244b72d.png" width="30%" height="30%">
+<img src = "https://user-images.githubusercontent.com/51500821/149668462-6fbf21ab-0f6f-45d0-88ed-8344c573fae5.JPG" width="40%" height="40%">
+위치는 한남동 유엔빌리지로 설정했다.</br></br>
+<img src = "https://user-images.githubusercontent.com/51500821/149667490-ec413805-968f-4b8b-85d0-5f5ca76efe4c.png" width="40%" height="40%">
+<img src = "https://user-images.githubusercontent.com/51500821/149667492-a1174e0b-8667-4d3c-8baf-6be1d244b72d.png" width="40%" height="40%">
 
 
 
@@ -32,10 +33,10 @@ String airConditon = 'http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsr
 * `setting` 페이지를 추가해 추가 정보를 보여주도록 했다.
 * `Dialog`와 `ListView` 사용
 
-<img src = "https://user-images.githubusercontent.com/51500821/149667494-9a0b5a4a-9715-4bf8-b5e3-b74ff1e2be47.png" width="30%" height="30%">
-<img src = "https://user-images.githubusercontent.com/51500821/149667495-6ec8c0e0-8e75-45b7-a637-914bf6bf21ba.png" width="30%" height="30%">
-<img src = "https://user-images.githubusercontent.com/51500821/149667497-13866632-700c-4a58-9f4a-601fa2620c6a.png" width="30%" height="30%">
-<img src = "https://user-images.githubusercontent.com/51500821/149667498-42bc18c2-f222-4722-bd96-2320b0c948e1.png" width="30%" height="30%">
+<img src = "https://user-images.githubusercontent.com/51500821/149667494-9a0b5a4a-9715-4bf8-b5e3-b74ff1e2be47.png" width="40%" height="40%">
+<img src = "https://user-images.githubusercontent.com/51500821/149667495-6ec8c0e0-8e75-45b7-a637-914bf6bf21ba.png" width="40%" height="40%">
+<img src = "https://user-images.githubusercontent.com/51500821/149667497-13866632-700c-4a58-9f4a-601fa2620c6a.png" width="40%" height="40%">
+<img src = "https://user-images.githubusercontent.com/51500821/149667498-42bc18c2-f222-4722-bd96-2320b0c948e1.png" width="40%" height="40%">
 
 
 
