@@ -24,7 +24,10 @@ String airConditon = 'http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsr
 <img src = "https://user-images.githubusercontent.com/51500821/149668462-6fbf21ab-0f6f-45d0-88ed-8344c573fae5.JPG" width="70%" height="70%">
 위치는 한남동 유엔빌리지로 설정했다.</br></br>
 <img src = "https://user-images.githubusercontent.com/51500821/149667490-ec413805-968f-4b8b-85d0-5f5ca76efe4c.png" width="40%" height="40%">
+* `시간대별 날씨`에서는 당일 3시간 간격의 날씨와 습도, 온도를 보여준다. 
+* 오후 7시~새벽 5시까지 night 아이콘을, 그 외의 시간에는 day 아이콘을 보여주도록 설정했다.
 <img src = "https://user-images.githubusercontent.com/51500821/149667492-a1174e0b-8667-4d3c-8baf-6be1d244b72d.png" width="40%" height="40%">
+* `날씨 예보`에서는 오늘과 내일, 모레의 오전/오후 날씨, 습도, 최저/최고 기온을 보여준다. 
 
 
 
@@ -54,7 +57,7 @@ String airConditon = 'http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsr
 </br></br>
 ## 😭아직 추가하지 못한 기능 및 처리해야 할 에러
 * 1. 기상청 http 에러 발생 시 어플 실행이 안 되는 에러
-* 2. 특정 시각(0~2시)에 일부 데이터를 가져오지 못하는 에러
+* 2. `날씨 예보`의 오늘 날씨 아이콘 에러: 특정 시각(0~2시)에는 데이터를 가져오지 못한다.
 * 3. 너무 느린 로딩 속도
 * 4. 클린코드, 리팩토링을 적용하지 못 했다.
 * 5. 어플 상단 pin 아이콘 검색 기능 추가 및 pin 아이콘 삭제
