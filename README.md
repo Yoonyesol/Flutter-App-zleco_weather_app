@@ -24,6 +24,7 @@ String airConditon = 'http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsr
 <img src = "https://user-images.githubusercontent.com/51500821/149668462-6fbf21ab-0f6f-45d0-88ed-8344c573fae5.JPG" width="70%" height="70%"></br></br>
 위치는 한남동 유엔빌리지로 설정했다.</br></br>
 <img src = "https://user-images.githubusercontent.com/51500821/149667490-ec413805-968f-4b8b-85d0-5f5ca76efe4c.png" width="40%" height="40%">
+* 미세먼지 데이터는 `kakao map api`와 `에어코리아 근처 측정소 api`를 이용해 사용자의 위치와 가장 근접한 측정소의 측정정보를 가져오게 했다.
 * `시간대별 날씨`에서는 당일 3시간 간격의 날씨와 습도, 온도를 보여준다. 
 * 오후 7시~새벽 5시까지 night 아이콘을, 그 외의 시간에는 day 아이콘을 보여주도록 설정했다.</br></br>
 <img src = "https://user-images.githubusercontent.com/51500821/149667492-a1174e0b-8667-4d3c-8baf-6be1d244b72d.png" width="40%" height="40%"></br></br>
