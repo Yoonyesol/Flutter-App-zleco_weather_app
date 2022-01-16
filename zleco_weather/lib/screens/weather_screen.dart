@@ -229,8 +229,8 @@ class _WeatherScreenState extends State<WeatherScreen> {
       }
     }
     td_icon_6 = model.getSkyIcon(td_sky_6, td_pty_6, 50, 50, '0600')!;
-    td_icon_18 = model.getSkyIcon("1", "1", 50, 50, '1800')!;
-    //하드코딩된 부분 수정하자. 값이 제대로 들어가 있지 않아 오류가 남.
+    td_icon_18 = model.getSkyIcon(td_sky_18, td_pty_18, 50, 50, '1800')!;
+    //td_sky_18과 td_pty_18은 0시 ~ 2시 사이에 에러 발생.
     todayTMN = double.parse('$todayTMN2').round(); //반올림
     todayTMX = double.parse('$todayTMX2').round();
 
@@ -1274,32 +1274,22 @@ class _WeatherScreenState extends State<WeatherScreen> {
                           ],
                         ),
                         SizedBox(
-                          height: 5,
+                          height: 15,
                         ),
                         Container(
                             child:
                             SizedBox(
-                                height: 20,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                      primary: Colors.transparent,
-                                      elevation: 0.0
-                                  ),
-                                  child: Text('© 오픈소스 라이선스',
-                                    style: TextStyle(
-                                        fontSize: 12.0,
-                                        color: Colors.black87
-                                    ),
-                                  ),
-                                  onPressed: (){
-                                    Future.delayed(Duration.zero, (){
-                                      Navigator.of(context).push(
-                                          MaterialPageRoute(builder: (_) => LicensePage()));
-                                    });
-                                  },
-                                )
+                              child: Text('정보제공: 기상청(날씨), 에어코리아(미세먼지)',
+                                style: TextStyle(
+                                    fontSize: 10.0,
+                                    color: Colors.black87
+                                ),
+                              ),
                             )
-                        )
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
                       ],
                     ),
                   ),
