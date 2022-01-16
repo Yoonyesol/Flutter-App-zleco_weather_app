@@ -1,4 +1,4 @@
-# hiiidan_weather
+# Weather_weather
 
 날씨와 미세먼지 정보를 알려주는 정보 앱
 
