@@ -2,8 +2,8 @@
 -------------------
 ## 날씨와 미세먼지 정보를 알려주는 정보 앱
 
-
 ![Animation22](https://user-images.githubusercontent.com/51500821/149667475-0f3f9e77-aa2d-481a-87d2-1138ae487da6.gif)
+
 
 
 <br/><br/>
@@ -26,6 +26,7 @@ String airConditon = 'http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsr
 <img src = "https://user-images.githubusercontent.com/51500821/149667492-a1174e0b-8667-4d3c-8baf-6be1d244b72d.png" width="30%" height="30%">
 
 
+
 <br/><br/>
 ## ⚙추가 기능: 미세먼지 농도 기준과 오픈소스 라이선스 고지 내용 출력
 * `setting` 페이지를 추가해 추가 정보를 보여주도록 했다.
@@ -37,13 +38,14 @@ String airConditon = 'http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsr
 <img src = "https://user-images.githubusercontent.com/51500821/149667498-42bc18c2-f222-4722-bd96-2320b0c948e1.png" width="30%" height="30%">
 
 
+
 <br/><br/>
 ## ☺새로 학습한 내용
 * 1. 스택 오버 플로우 사용 및 영어로 코딩관련 질문을 하는 것에 익숙해졌다.
 * 2. REST API 사용법을 익혔다.
 * 3. 저작권 준수를 위한 정보를 다수 알게 되었다.
 * 4. 플러터 UI 구현에 익숙해졌다.
-* 5. GitHub에 프로젝트를 올릴 때 중요한 정보(ex. `api key`)를 은닉하는 방법을 배웠다. (`.env`와 '.gitignore` 사용)
+* 5. GitHub에 프로젝트를 올릴 때 중요한 정보(ex. `api key`)를 은닉하는 방법을 배웠다. (`.env`와 `.gitignore` 사용)
 * 6. 플러터 dart 문법이나 다양한 날짜, 시간 표현, 깃 사용법 등에 대해 배웠다.😀
 
 
