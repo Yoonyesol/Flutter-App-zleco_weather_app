@@ -21,12 +21,12 @@ String airConditon = 'http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsr
         'stationName=$obs&dataTerm=DAILY&pageNo=1&ver=1.0'
         '&numOfRows=1&returnType=json&serviceKey=$apiKey';
 ```
-<img src = "https://user-images.githubusercontent.com/51500821/149668462-6fbf21ab-0f6f-45d0-88ed-8344c573fae5.JPG" width="70%" height="70%">
+<img src = "https://user-images.githubusercontent.com/51500821/149668462-6fbf21ab-0f6f-45d0-88ed-8344c573fae5.JPG" width="70%" height="70%"></br></br>
 위치는 한남동 유엔빌리지로 설정했다.</br></br>
 <img src = "https://user-images.githubusercontent.com/51500821/149667490-ec413805-968f-4b8b-85d0-5f5ca76efe4c.png" width="40%" height="40%">
 * `시간대별 날씨`에서는 당일 3시간 간격의 날씨와 습도, 온도를 보여준다. 
-* 오후 7시~새벽 5시까지 night 아이콘을, 그 외의 시간에는 day 아이콘을 보여주도록 설정했다.
-<img src = "https://user-images.githubusercontent.com/51500821/149667492-a1174e0b-8667-4d3c-8baf-6be1d244b72d.png" width="40%" height="40%">
+* 오후 7시~새벽 5시까지 night 아이콘을, 그 외의 시간에는 day 아이콘을 보여주도록 설정했다.</br></br>
+<img src = "https://user-images.githubusercontent.com/51500821/149667492-a1174e0b-8667-4d3c-8baf-6be1d244b72d.png" width="40%" height="40%"></br></br>
 * `날씨 예보`에서는 오늘과 내일, 모레의 오전/오후 날씨, 습도, 최저/최고 기온을 보여준다. 
 
 
