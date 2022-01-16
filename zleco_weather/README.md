@@ -43,9 +43,9 @@ String airConditon = 'http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsr
 ## ☺새로 학습한 내용
 * 1. 스택 오버 플로우 사용 및 영어로 코딩관련 질문을 하는 것에 익숙해졌다.
 * 2. REST API 사용법을 익혔다.
-* 3. 저작권 준수를 위한 정보를 다수 알게 되었다.
+* 3. 저작권 준수를 위한 정보를 습득하였다.
 * 4. 플러터 UI 구현에 익숙해졌다.
-* 5. GitHub에 프로젝트를 올릴 때 중요한 정보(ex. `api key`)를 은닉하는 방법을 배웠다. (`.env`와 `.gitignore` 사용)
+* 5. GitHub에 프로젝트를 올릴 때 중요한 정보(`ex. api key`)를 은닉하는 방법을 배웠다. (`.env`와 `.gitignore` 사용)
 * 6. 플러터 dart 문법이나 다양한 날짜, 시간 표현, 깃 사용법 등에 대해 배웠다.😀
 
 
