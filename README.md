@@ -21,7 +21,7 @@ String airConditon = 'http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsr
         'stationName=$obs&dataTerm=DAILY&pageNo=1&ver=1.0'
         '&numOfRows=1&returnType=json&serviceKey=$apiKey';
 ```
-<img src = "https://user-images.githubusercontent.com/51500821/149668462-6fbf21ab-0f6f-45d0-88ed-8344c573fae5.JPG" width="40%" height="40%">
+<img src = "https://user-images.githubusercontent.com/51500821/149668462-6fbf21ab-0f6f-45d0-88ed-8344c573fae5.JPG" width="70%" height="70%">
 위치는 한남동 유엔빌리지로 설정했다.</br></br>
 <img src = "https://user-images.githubusercontent.com/51500821/149667490-ec413805-968f-4b8b-85d0-5f5ca76efe4c.png" width="40%" height="40%">
 <img src = "https://user-images.githubusercontent.com/51500821/149667492-a1174e0b-8667-4d3c-8baf-6be1d244b72d.png" width="40%" height="40%">
