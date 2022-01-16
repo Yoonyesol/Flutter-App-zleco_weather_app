@@ -33,8 +33,8 @@ String airConditon = 'http://apis.data.go.kr/B552584/ArpltnInforInqireSvc/getMsr
 
 
 <br/><br/>
-## ⚙추가 기능: 미세먼지 농도 기준과 오픈소스 라이선스 고지 내용 출력
-* `setting` 페이지를 추가해 추가 정보를 보여주도록 했다.
+## ⚙추가 기능: 미세먼지 등급 기준과 오픈소스 라이선스 고지 내용 출력
+* `setting` 페이지를 추가해 해당 정보를 보여주도록 했다.
 * `Dialog`와 `ListView` 사용
 
 <img src = "https://user-images.githubusercontent.com/51500821/149667494-9a0b5a4a-9715-4bf8-b5e3-b74ff1e2be47.png" width="40%" height="40%">
